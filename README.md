@@ -1,33 +1,15 @@
-## Pig detection project - Count pig's numbers and Seize their behavior pattern(standing,lying).
-## Ultimately We will get pig's weight(area of pig's fixel??) with image with masking.
+## person size estimating project
 
-0.Use MatterPort's Mask R-CNN Code
+1. shoulder and waist point estimating ref here https://github.com/DeNA/Chainer_Realtime_Multi-Person_Pose_Estimation/blob/master/README.md
 
-1.We start from balloon.py (1 class)
+2. We can't upload caffemodel because over 100mb. Put model in ' pose/coco/ ' here.
 
-2.We need 2 classes (standing pig,lying pig) 
+3. train,inference are similar to pig detection.
 
-3.So we refer to https://github.com/SUYEgit/Surgery-Robot-Detection-Segmentation
+4. upgrade gui(pyqt5) +table +measure button
 
-4.I seperate train,test code.(train.py ,test.py) Because we need understand code.
+5. We will make estimate algorithm with pixel area,height,shoulder.
 
-5.Now we combine these code again(main.py), and make GUI with PyQt5
+6. web cam is 640x480 px.
 
-We change mrcnn/visualize.py  -> display_instances method ( save img file here )
-In pig_images/   json file "region_attributes":{"name" : "standing_pig"} <---- class name
-We use VGG Image Annotation tool http://www.robots.ox.ac.uk/~vgg/software/via/via-1.0.6.html
-environment -> require.txt
-
-
-Not complete project (19/09/18)
-
-6.We decide segmentation only one class(pig).
-
-7.We make augmentation tool(image augmentation + add json code), and augment dataset(rotate 30degree,resize,blur) (not perfect) (add_re_blur)
-
-8.We change mrcnn/visualize.py -> object tracking with opencv tracking library.
-
-
-
-
-
+7. pixel : cm(real world) = 12 : 5
