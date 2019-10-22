@@ -6,7 +6,7 @@ Copyright (c) 2017 Matterport, Inc.
 Licensed under the MIT License (see LICENSE for details)
 Written by Waleed Abdulla
 """
-
+from __future__ import print_function
 import os
 import sys
 import logging
@@ -14,7 +14,8 @@ import random
 import itertools
 import colorsys
 import datetime
-
+from random import randint
+import math
 import numpy as np
 from skimage.measure import find_contours
 import matplotlib.pyplot as plt
@@ -31,7 +32,38 @@ from mrcnn import utils
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure
 import cv2
-
+ex_box=[]
+cbal = True
+cbal2 = False
+multiTracker = None
+trackerTypes = ['BOOSTING', 'MIL', 'KCF','TLD', 'MEDIANFLOW', 'GOTURN', 'MOSSE', 'CSRT']
+ 
+def createTrackerByName(trackerType):
+  # Create a tracker based on tracker name
+  if trackerType == trackerTypes[0]:
+    tracker = cv2.TrackerBoosting_create()
+  elif trackerType == trackerTypes[1]: 
+    tracker = cv2.TrackerMIL_create()
+  elif trackerType == trackerTypes[2]:
+    tracker = cv2.TrackerKCF_create()
+  elif trackerType == trackerTypes[3]:
+    tracker = cv2.TrackerTLD_create()
+  elif trackerType == trackerTypes[4]:
+    tracker = cv2.TrackerMedianFlow_create()
+  elif trackerType == trackerTypes[5]:
+    tracker = cv2.TrackerGOTURN_create()
+  elif trackerType == trackerTypes[6]:
+    tracker = cv2.TrackerMOSSE_create()
+  elif trackerType == trackerTypes[7]:
+    tracker = cv2.TrackerCSRT_create()
+  else:
+    tracker = None
+    print('Incorrect tracker name')
+    print('Available trackers are:')
+    for t in trackerTypes:
+      print(t)
+     
+  return tracker
 ############################################################d
 #  Visualization
 ############################################################
@@ -83,6 +115,7 @@ def apply_mask(image, mask, color, alpha=0.5):
                                   image[:, :, c])
     return image
 
+#display_instances2 code for save file, need merge with display_instances
 def display_instances2(image, boxes, masks, class_ids, class_names,
                       scores=None, title="",
                       figsize=(16, 16), ax=None,
@@ -177,7 +210,7 @@ def display_instances2(image, boxes, masks, class_ids, class_names,
 
 def display_instances(image, boxes, masks, class_ids, class_names,
                       scores=None, title="",
-                      figsize=(16, 16), ax=None,
+                      figsize=(8, 6), ax=None,
                       show_mask=True, show_bbox=True,
                       colors=None, captions=None,
                       making_video=False, making_image=False, detect=False, hc=False, real_time=False):
@@ -193,6 +226,8 @@ def display_instances(image, boxes, masks, class_ids, class_names,
     colors: (optional) An array or colors to use with each object
     captions: (optional) A list of strings to use as captions for each object
     """
+    bboxes = []
+    colors2 = []
     # Number of instances
     N = boxes.shape[0]
     if not N:
@@ -245,7 +280,7 @@ def display_instances(image, boxes, masks, class_ids, class_names,
                                 alpha=0.7, linestyle="dashed",
                                 edgecolor=color, facecolor='none')
             ax.add_patch(p)
-
+           
         # Label
         if not captions:
             score = scores[i] if scores is not None else None
@@ -273,6 +308,13 @@ def display_instances(image, boxes, masks, class_ids, class_names,
             verts = np.fliplr(verts) - 1
             p = Polygon(verts, facecolor="none", edgecolor=color)
             ax.add_patch(p)
+
+        #bbox = cv2.selectROI('MultiTracker',masked_image)
+        bboxes.append(boxes[i])
+        colors2.append((randint(0,255),randint(0,255),randint(0,255)))
+
+    #after for
+
     ax.imshow(masked_image.astype(np.uint8))
     if detect:
         plt.close()
@@ -281,9 +323,10 @@ def display_instances(image, boxes, masks, class_ids, class_names,
     fig.canvas.draw()
     X = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
     X = X.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+    print(X.shape)
     # open cv's RGB style: BGR
-    if not real_time:
-        X = X[..., ::-1]
+    #if not real_time:
+        #X = X[..., ::-1]
     if making_video or real_time:
         plt.close()
         return X
@@ -291,8 +334,6 @@ def display_instances(image, boxes, masks, class_ids, class_names,
         cv2.imwrite('splash.png', X)
     if auto_show:
         plt.show()
-
-
 
 def display_differences(image,
                         gt_box, gt_class_id, gt_mask,

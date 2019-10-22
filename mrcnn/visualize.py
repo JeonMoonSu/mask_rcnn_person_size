@@ -329,7 +329,6 @@ def display_instances(image, boxes, masks, class_ids, class_names,
     #after for
 
     ax.imshow(masked_image.astype(np.uint8))
-    fig.savefig('savefig.png')
     if detect:
         plt.close()
         return canvas
@@ -343,7 +342,6 @@ def display_instances(image, boxes, masks, class_ids, class_names,
         #X = X[..., ::-1]
     if making_video or real_time:
         plt.close()
-        cv2.imwrite('x.png', X)
         return X, y3, z
     elif making_image:
         cv2.imwrite('splash.png', X)

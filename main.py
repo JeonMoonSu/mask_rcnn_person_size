@@ -40,6 +40,7 @@ q2 = queue.Queue()
 t_model = None
 num=0
 num2=0
+table_size = 10
 sys.path.append(ROOT_DIR)
 
 COCO_WEIGHTS_PATH = os.path.join(ROOT_DIR,"mask_rcnn_coco.h5")
@@ -91,10 +92,8 @@ class VThread(QThread):
             if active:
                 q2.put(frame)
                 num+=1
-                print("q2size: ", q2.qsize(), 'num:', num)
-                #date.strftime('%s-%H-%m')
-                #cv2.imwrite('./test_images/%s_%d.jpg' %d %num, frame)
-                if num==9:
+
+                if num==table_size-1:
                     num = 0
                     active = False
 
@@ -176,7 +175,7 @@ class TestWindow(QDialog,form_class):
         self.label1.setAlignment(Qt.AlignCenter)
         self.label2.setAlignment(Qt.AlignCenter)
 
-        self.table = QTableWidget(12,4,self)
+        self.table = QTableWidget(table_size,4,self)
         self.table.setHorizontalHeaderLabels(["Height","Weight","Size(Top)","Size(Pants)"])
 
         self.play_button = QPushButton("Play Video")
@@ -226,9 +225,6 @@ class TestWindow(QDialog,form_class):
         _translate = QtCore.QCoreApplication.translate
         TestQFileDialog.setWindowTitle(_translate("TestQFileDialog","Dialog"))
 
-    
-
-
     def update_frame(self):
         if not q.empty():
             frame = q.get()
@@ -248,14 +244,11 @@ class TestWindow(QDialog,form_class):
             img = frame["img"]
             img = cv2.resize(img, None, fx=1.0, fy=1.0, interpolation = cv2.INTER_NEAREST)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            print('active ', active)
-            print('numsize ', num2)
+
             #get value by pixel
             height = frame["height"]
             weight = frame["weight"]
             shoulder,waist = GetPersonPoint(img)
-            print("길이,무게: ",height," ",weight)
-            print("어깨,허리: ",shoulder," ",waist)
  
             #make best algorithm
 
@@ -265,66 +258,35 @@ class TestWindow(QDialog,form_class):
             self.table.setItem(num2, 1, QTableWidgetItem(str(weight)))
             self.table.setItem(num2, 2, QTableWidgetItem(str(shoulder)))
             self.table.setItem(num2, 3, QTableWidgetItem(str(waist)))
+
             num2+=1
 
-            if height>0:
+            if height>0 and weight>0 and shoulder>0 and waist>0:
                 lheight.append(height)
-            if weight>0:
                 lweight.append(weight)
-            if shoulder>0:
                 lshoulder.append(shoulder)
-            if waist>0:
                 lwaist.append(waist)
-
             
-            if num2==9:
+            if num2==table_size-1:
                 num2=0
-                if len(lheight[2:-2])>3: 
-                    lheight.sort()
-                    avg_height=sum(lheight[2:-2])/len(lheight[2:-2])
-                elif len(lheight)>0:
-                    #avg_height=sum(lheight)/len(lheight) 
-                    avg_height='lack of sample'
+
+                if len(lheight) > 0:
+                    avg_height = str(sum(lheight)/len(lheight))
+                    avg_weight = str(sum(lweight)/len(lweight))
+                    avg_shoulder = str(sum(lshoulder)/len(lshoulder))
+                    avg_waist = str(sum(lwaist)/len(lwaist))
                 else:
-                    #avg_height=0
-                    avg_height='empty sample'
-
-                if len(lweight[2:-2])>3: 
-                    lweight.sort()
-                    avg_weight=sum(lweight[2:-2])/len(lweight[2:-2])
-                    avg_weight=avg_weight/100
-                elif len(lweight)>0:
-                    #avg_weight=sum(lweight)/len(lweight)
-                    avg_weight='lack of sample'
-                else:
-                    #avg_weight=0
-                    avg_weight='empty sample'
-
-                if len(lshoulder[2:-2])>3: 
-                    lshoulder.sort()
-                    avg_shoulder=sum(lshoulder[2:-2])/len(lshoulder[2:-2])
-                elif len(lshoulder)>0:
-                    #avg_shoulder=sum(lshoulder)/len(lshoulder) 
-                    avg_shoulder='lack of sample'
-                else :
-                    #avg_shoulder=0
-                    avg_shoulder='empty sample'
-
-                if len(lwaist[2:-2])>3: 
-                    lwaist.sort()
-                    avg_waist=sum(lwaist[2:-2])/len(lwaist[2:-2])
-                elif len(lwaist)>0:
-                    #avg_waist=sum(lwaist)/len(lwaist)
-                    avg_waist='lack of sample'
-                else:
-                    #avg_waist=0
-                    avg_waist='empty sample'
+                    avg_height = "No instance detecting!"
+                    avg_weight = "No instance detecting!"
+                    avg_shoulder = "No instance detecting!"
+                    avg_waist = "No instance detecting!"
 
 
-                self.table.setItem(11, 0, QTableWidgetItem(str(avg_height)))
-                self.table.setItem(11, 1, QTableWidgetItem(str(avg_weight)))
-                self.table.setItem(11, 2, QTableWidgetItem(str(avg_shoulder)))
-                self.table.setItem(11, 3, QTableWidgetItem(str(avg_waist)))
+                self.table.setItem(table_size-1, 0, QTableWidgetItem(avg_height))
+                self.table.setItem(table_size-1, 1, QTableWidgetItem(avg_weight))
+                self.table.setItem(table_size-1, 2, QTableWidgetItem(avg_shoulder))
+                self.table.setItem(table_size-1, 3, QTableWidgetItem(avg_waist))
+
                 lheight.clear()
                 lweight.clear()
                 lshoulder.clear()
