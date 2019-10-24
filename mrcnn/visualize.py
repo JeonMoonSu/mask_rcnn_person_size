@@ -227,7 +227,7 @@ def display_instances(image, boxes, masks, class_ids, class_names,
     colors: (optional) An array or colors to use with each object
     captions: (optional) A list of strings to use as captions for each object
     """
-    ppm=5.0/12.0
+    ppm=9.0/20.0
     bboxes = []
     colors2 = []
     y3=0.0
@@ -298,11 +298,11 @@ def display_instances(image, boxes, masks, class_ids, class_names,
 
         # Mask
         mask = masks[:, :, i]
-        if show_mask:
-            masked_image = apply_mask(masked_image, mask, color)
+        #if show_mask:
+            #masked_image = apply_mask(masked_image, mask, color)
 
         # Mask Polygon
-        # Pad to ensure proper polygons for masks that touch image edges.
+        # Pad to ensure proper polygons for masks that touch image edges
         padded_mask = np.zeros(
             (mask.shape[0] + 2, mask.shape[1] + 2), dtype=np.uint8)
         padded_mask[1:-1, 1:-1] = mask
@@ -311,16 +311,16 @@ def display_instances(image, boxes, masks, class_ids, class_names,
             # Subtract the padding and flip (y, x) to (x, y)
             verts = np.fliplr(verts) - 1
             p = Polygon(verts, facecolor="none", edgecolor=color)
-            ax.add_patch(p)
+            #ax.add_patch(p)
 
         #bbox = cv2.selectROI('MultiTracker',masked_image)
         bboxes.append(boxes[i])
         colors2.append((randint(0,255),randint(0,255),randint(0,255)))
     if N>0:
         y3=y2-y1
-        y3=y3*ppm*1.145
+        y3=y3*ppm
         z=np.sum(masks[:,:,i])
-        z=z*ppm*0.88
+        z=z*ppm*ppm
         x3=x2-x1
         x3=x3*ppm
         ax.text(x2, y1, str(y3), color='w', size=10, backgroundcolor='none')

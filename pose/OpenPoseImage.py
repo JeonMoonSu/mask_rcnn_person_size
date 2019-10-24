@@ -8,7 +8,7 @@ weightsFile = "/home/default/Deep-Learning/mask_rcnn_size_detection/pose/coco/po
 nPoints = 18
 POSE_PAIRS = [ [1,0],[1,2],[1,5],[2,3],[3,4],[5,6],[6,7],[1,8],[8,9],[9,10],[1,11],[11,12],[12,13],[0,14],[0,15],[14,16],[15,17]]
 
-ppm = 5.0/12.0
+ppm = 9.0/20.0
 xpm = 800.0/640.0
 ypm = 600.0/480.0
 
@@ -57,6 +57,8 @@ def GetPersonPoint(img):
     shoulder_distance = 0.0
     waist_distance = 0.0
 
+    print("points: ",points)
+
     if running:
         cv2.line(frame, points[5], points[2], (0,255,255), 2)
         cv2.line(frame, points[11], points[8], (0,255,255), 2)
@@ -78,6 +80,6 @@ def GetPersonPoint(img):
 
         waist_distance = math.sqrt((waist_dx * waist_dx) + (waist_dy * waist_dy))
 
-    return shoulder_distance*ppm,waist_distance*ppm*1.5
+    return shoulder_distance*ppm*1.18,waist_distance*ppm*1.4
 
 

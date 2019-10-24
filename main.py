@@ -273,8 +273,8 @@ class TestWindow(QDialog,form_class):
                 if len(lheight) > 0:
                     avg_height = str(sum(lheight)/len(lheight))
                     avg_weight = str(sum(lweight)/len(lweight))
-                    avg_shoulder = str(sum(lshoulder)/len(lshoulder))
-                    avg_waist = str(sum(lwaist)/len(lwaist))
+                    avg_shoulder = str(max(lshoulder))
+                    avg_waist = str(max(lwaist))
                 else:
                     avg_height = "No instance detecting!"
                     avg_weight = "No instance detecting!"
