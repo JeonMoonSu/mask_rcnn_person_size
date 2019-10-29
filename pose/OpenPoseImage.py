@@ -7,6 +7,7 @@ protoFile = "/home/default/Deep-Learning/mask_rcnn_size_detection/pose/coco/pose
 weightsFile = "/home/default/Deep-Learning/mask_rcnn_size_detection/pose/coco/pose_iter_440000.caffemodel"
 nPoints = 18
 POSE_PAIRS = [ [1,0],[1,2],[1,5],[2,3],[3,4],[5,6],[6,7],[1,8],[8,9],[9,10],[1,11],[11,12],[12,13],[0,14],[0,15],[14,16],[15,17]]
+net = cv2.dnn.readNetFromCaffe(protoFile, weightsFile)
 
 ppm = 9.0/20.0
 xpm = 800.0/640.0
@@ -18,8 +19,6 @@ def GetPersonPoint(img):
     frameWidth = frame.shape[1]
     frameHeight = frame.shape[0]
     threshold = 0.1
-
-    net = cv2.dnn.readNetFromCaffe(protoFile, weightsFile)
 
 # input image dimensions for the network
     inWidth = 368
@@ -50,22 +49,25 @@ def GetPersonPoint(img):
 
         if prob > threshold : 
             points.append((int(x), int(y)))
+
         else :
             points.append(None)
             running = False
-    
+
     shoulder_distance = 0.0
     waist_distance = 0.0
 
     print("points: ",points)
 
     if running:
-        cv2.line(frame, points[5], points[2], (0,255,255), 2)
-        cv2.line(frame, points[11], points[8], (0,255,255), 2)
+        for pair in POSE_PAIRS:
+            partA = pair[0]
+            partB = pair[1]
 
-        cv2.imshow('Output-Skeleton', frame)
+            if points[partA] and points[partB]:
+                cv2.line(frame, points[partA], points[partB], (0, 255, 255), 2)
+                cv2.circle(frame, points[partA], 8, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
         cv2.imwrite('Output-Skeleton.jpg', frame)
-
         shoulder_dx = points[5][0] - points[2][0]
         shoulder_dy = points[5][1] - points[2][1]
         shoulder_dx = shoulder_dx*xpm
@@ -81,5 +83,6 @@ def GetPersonPoint(img):
         waist_distance = math.sqrt((waist_dx * waist_dx) + (waist_dy * waist_dy))
 
     return shoulder_distance*ppm*1.18,waist_distance*ppm*1.4
+
 
 

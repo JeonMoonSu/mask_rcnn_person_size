@@ -124,6 +124,8 @@ class TestWindow(QDialog,form_class):
     def measureClicked(self):
         global active
         global running
+        self.table.clear()
+        self.table2.clear()
         if running:
             active=True
         
@@ -171,12 +173,17 @@ class TestWindow(QDialog,form_class):
         #Widget
         self.label1 = QLabel("CAM")
         self.label2 = QLabel("TABLE")
+        self.label3 = QLabel("RESULT")
 
         self.label1.setAlignment(Qt.AlignCenter)
         self.label2.setAlignment(Qt.AlignCenter)
+        self.label3.setAlignment(Qt.AlignCenter)
 
         self.table = QTableWidget(table_size,4,self)
-        self.table.setHorizontalHeaderLabels(["Height","Weight","Size(Top)","Size(Pants)"])
+        self.table.setHorizontalHeaderLabels(["Height","Weight(px)","Shoulder(cm)","Waist(cm)"])
+
+        self.table2 = QTableWidget(1,4,self)
+        self.table2.setHorizontalHeaderLabels(["Height","Weight(kg)","Size(Top)","Size(Pants)"])
 
         self.play_button = QPushButton("Play Video")
         self.play_button.clicked.connect(self.runClicked)
@@ -198,7 +205,12 @@ class TestWindow(QDialog,form_class):
         layout.addWidget(self.label1,0,0)
         layout.addWidget(self.label2,0,1)
         layout.addWidget(self.ImgWidget,1,0)
-        layout.addWidget(self.table,1,1)
+
+        verLayout = QVBoxLayout()
+        verLayout.addWidget(self.table)
+        verLayout.addWidget(self.label3)
+        verLayout.addWidget(self.table2)
+        layout.addLayout(verLayout,1,1)
 
         horLayout = QHBoxLayout() 
         horLayout.addStretch(1) 
@@ -215,9 +227,9 @@ class TestWindow(QDialog,form_class):
         self.setLayout(layout)
         self.setGeometry(200,200,1350,650)
 
-	#Timer
+	    #Timer
         self.timer = QtCore.QTimer(self)
-        self.timer.setInterval(10)
+        self.timer.setInterval(100)
         self.timer.timeout.connect(self.update_frame)
         self.timer.start()
 
@@ -250,8 +262,6 @@ class TestWindow(QDialog,form_class):
             weight = frame["weight"]
             shoulder,waist = GetPersonPoint(img)
  
-            #make best algorithm
-
             #reflect on table
             cv2.imwrite('testimage%d.jpg' % num2, img)
             self.table.setItem(num2, 0, QTableWidgetItem(str(height)))

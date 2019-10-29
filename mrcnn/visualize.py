@@ -318,7 +318,7 @@ def display_instances(image, boxes, masks, class_ids, class_names,
         colors2.append((randint(0,255),randint(0,255),randint(0,255)))
     if N>0:
         y3=y2-y1
-        y3=y3*ppm
+        y3=y3*ppm+2
         z=np.sum(masks[:,:,i])
         z=z*ppm*ppm
         x3=x2-x1
