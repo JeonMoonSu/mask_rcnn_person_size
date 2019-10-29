@@ -60,14 +60,12 @@ def GetPersonPoint(img):
     print("points: ",points)
 
     if running:
-        for pair in POSE_PAIRS:
-            partA = pair[0]
-            partB = pair[1]
+        cv2.line(frame, points[5], points[2], (0,255,255), 2)
+        cv2.line(frame, points[11], points[8], (0,255,255), 2)
 
-            if points[partA] and points[partB]:
-                cv2.line(frame, points[partA], points[partB], (0, 255, 255), 2)
-                cv2.circle(frame, points[partA], 8, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
+        cv2.imshow('Output-Skeleton', frame)
         cv2.imwrite('Output-Skeleton.jpg', frame)
+
         shoulder_dx = points[5][0] - points[2][0]
         shoulder_dy = points[5][1] - points[2][1]
         shoulder_dx = shoulder_dx*xpm

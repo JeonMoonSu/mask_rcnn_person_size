@@ -126,6 +126,9 @@ class TestWindow(QDialog,form_class):
         global running
         self.table.clear()
         self.table2.clear()
+
+        self.table.setHorizontalHeaderLabels(["Height","Weight(px)","Shoulder(cm)","Waist(cm)"])
+        self.table2.setHorizontalHeaderLabels(["Height","Weight(kg)","Size(Top)","Size(Pants)"])
         if running:
             active=True
         
@@ -270,7 +273,7 @@ class TestWindow(QDialog,form_class):
             self.table.setItem(num2, 3, QTableWidgetItem(str(waist)))
 
             num2+=1
-
+            #누락된 데이터가 하나라도 없을때만 append 시킴
             if height>0 and weight>0 and shoulder>0 and waist>0:
                 lheight.append(height)
                 lweight.append(weight)
@@ -279,29 +282,58 @@ class TestWindow(QDialog,form_class):
             
             if num2==table_size-1:
                 num2=0
-
                 if len(lheight) > 0:
-                    avg_height = str(sum(lheight)/len(lheight))
-                    avg_weight = str(sum(lweight)/len(lweight))
-                    avg_shoulder = str(max(lshoulder))
-                    avg_waist = str(max(lwaist))
+                    avg_height = sum(lheight)/len(lheight)
+                    avg_weight = sum(lweight)/len(lweight)
+                    avg_shoulder = max(lshoulder)
+                    avg_waist = max(lwaist)
                 else:
-                    avg_height = "No instance detecting!"
-                    avg_weight = "No instance detecting!"
-                    avg_shoulder = "No instance detecting!"
-                    avg_waist = "No instance detecting!"
+                    avg_height = 0
+                    avg_weight = 0
+                    avg_shoulder = 0
+                    avg_waist = 0
 
+                self.table.setItem(table_size-1, 0, QTableWidgetItem(str(avg_height)))
+                self.table.setItem(table_size-1, 1, QTableWidgetItem(str(avg_weight)))
+                self.table.setItem(table_size-1, 2, QTableWidgetItem(str(avg_shoulder)))
+                self.table.setItem(table_size-1, 3, QTableWidgetItem(str(avg_waist)))
 
-                self.table.setItem(table_size-1, 0, QTableWidgetItem(avg_height))
-                self.table.setItem(table_size-1, 1, QTableWidgetItem(avg_weight))
-                self.table.setItem(table_size-1, 2, QTableWidgetItem(avg_shoulder))
-                self.table.setItem(table_size-1, 3, QTableWidgetItem(avg_waist))
+                if len(leheight) > 0:
+                    final_height = avg_height+2
+                    final_weight = GetWeight(final_height,avg_weight)
+                
+                    final_top = GetTopSize(final_height,final_weight)
+                    final_bottom = GetBottomSize(final_top)
 
+                    self.table2.setItem(0,0, QTableWidgetItem(str(final_height)))
+                    self.table2.setItem(0,1, QTableWidgetItem(str(final_weight)))
+                    self.table2.setItem(0,2, QTableWidgetItem(str(final_top)))
+                    self.table2.setItem(0,3, QTableWidgetItem(str(final_bottom)))
+                
                 lheight.clear()
                 lweight.clear()
                 lshoulder.clear()
                 lwaist.clear()
-    
+
+    def GetWeight(self,height,pixel):
+        return 100
+    def GetTopSize(self,height,weight):
+        a = 13.1206539
+        b = [0.398502 0.281699]
+        value = a + (height*b[0] + weight*b[1])
+        return value
+    def GetBottomSize(self,top):
+        if 90 <= top and top < 95:
+            return 28
+        elif 95 <= top and top < 100:
+            return 30
+        elif 100 <= top and top < 105:
+            return 32
+        elif 105 <= top and top < 110:
+            return 34
+        else:
+            return 0
+
     def closeEvent(self,event): 
         global running
         running = False
