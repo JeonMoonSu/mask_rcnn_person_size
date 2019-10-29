@@ -10,6 +10,9 @@
 
 5. We will make estimate algorithm with pixel area,height,shoulder.
 
+5.1. 다중선형회귀분석.ipynb makes alogrithm by linear_regression.
+
 6. web cam is 640x480 px.
 
 7. pixel : cm(real world) = 12 : 5
+
